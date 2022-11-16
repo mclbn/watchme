@@ -2,7 +2,6 @@
 
 void
 menu_ntp_time(void) {
-  display.init(0, false); //_initial_refresh to false to prevent full update on init
   display.setFullWindow();
   display.fillScreen(DARKMODE ? GxEPD_BLACK : GxEPD_WHITE);
   display.setFont(&FreeMonoBold9pt7b);
@@ -20,6 +19,6 @@ menu_ntp_time(void) {
   delay(1000);
 
   display.display(false); //full refresh
-  display.hibernate();
+
   show_menu(menu_index, false);
 }

@@ -2,10 +2,10 @@
 
 WatchyRTC RTC;
 
-GxEPD2_BW<GxEPD2_154_D67, GxEPD2_154_D67::HEIGHT> display(GxEPD2_154_D67(CS,
-									 DC,
-									 RESET,
-									 BUSY));
+GxEPD2_BW<GxEPD2_154_D67, GxEPD2_154_D67::HEIGHT> display(GxEPD2_154_D67(DISPLAY_CS,
+									 DISPLAY_DC,
+									 DISPLAY_RESET,
+									 DISPLAY_BUSY));
 
 tmElements_t currentTime;
 
@@ -23,14 +23,35 @@ RTC_DATA_ATTR bool WIFI_CONFIGURED;
 RTC_DATA_ATTR bool BLE_CONFIGURED;
 RTC_DATA_ATTR weatherData currentWeather;
 RTC_DATA_ATTR int weatherIntervalCounter = WEATHER_UPDATE_INTERVAL;
+RTC_DATA_ATTR bool displayFullInit = true;
 
 static void
 reset_watch(void) {
   ESP.restart();
 }
 
+void displayBusyCallback(const void *) {
+  gpio_wakeup_enable((gpio_num_t)DISPLAY_BUSY, GPIO_INTR_LOW_LEVEL);
+  esp_sleep_enable_gpio_wakeup();
+  esp_light_sleep_start();
+}
+
 static void
 deep_sleep() {
+  Serial.println("Going to deep sleep.");
+  display.hibernate();
+  if (displayFullInit) // For some reason, seems to be enabled on first boot
+    esp_sleep_disable_wakeup_source(ESP_SLEEP_WAKEUP_ALL);
+  displayFullInit = false; // Notify not to init it again
+  RTC.clearAlarm();        // resets the alarm flag in the RTC
+
+  // Set GPIOs 0-39 to input to avoid power leaking out
+  const uint64_t ignore = 0b11110001000000110000100111000010; // Ignore some GPIOs due to resets
+  for (int i = 0; i < GPIO_NUM_MAX; i++) {
+    if ((ignore >> i) & 0b1)
+      continue;
+    pinMode(i, INPUT);
+  }
   esp_sleep_enable_ext0_wakeup(RTC_PIN, 0); //enable deep sleep wake on RTC interrupt
   esp_sleep_enable_ext1_wakeup(BTN_PIN_MASK, ESP_EXT1_WAKEUP_ANY_HIGH); //enable deep sleep wake on button press
   esp_deep_sleep_start();
@@ -159,7 +180,6 @@ _bmaConfig() {
 
 void
 show_menu(byte menu_index, bool partialRefresh) {
-  display.init(0, false); //_initial_refresh to false to prevent full update on init
   display.setFullWindow();
   display.fillScreen(DARKMODE ? GxEPD_BLACK : GxEPD_WHITE);
   display.setFont(&FreeMonoBold9pt7b);
@@ -193,7 +213,6 @@ show_menu(byte menu_index, bool partialRefresh) {
   }
 
   display.display(partialRefresh);
-  //display.hibernate();
 
   gui_state = STATE_MENU;
 }
@@ -237,78 +256,6 @@ show_fast_menu(byte menu_index) {
   gui_state = STATE_MENU;
 }
 
-static void
-showAccelerometer() {
-  display.init(0, true); //_initial_refresh to false to prevent full update on init
-  display.setFullWindow();
-  display.fillScreen(GxEPD_BLACK);
-  display.setFont(&FreeMonoBold9pt7b);
-  display.setTextColor(GxEPD_WHITE);
-
-  Accel acc;
-
-  long previousMillis = 0;
-  long interval = 200;
-
-  gui_state = STATE_MENU_APP;
-
-  pinMode(BACK_BTN_PIN, INPUT);
-
-  while(1) {
-
-    unsigned long currentMillis = millis();
-
-    if (digitalRead(BACK_BTN_PIN) == 1) {
-      break;
-    }
-
-    if (currentMillis - previousMillis > interval) {
-      previousMillis = currentMillis;
-      // Get acceleration data
-      bool res = sensor.getAccel(acc);
-      uint8_t direction = sensor.getDirection();
-      display.fillScreen(GxEPD_BLACK);
-      display.setCursor(0, 30);
-      if (res == false) {
-	display.println("getAccel FAIL");
-      } else {
-        display.print("  X:"); display.println(acc.x);
-        display.print("  Y:"); display.println(acc.y);
-        display.print("  Z:"); display.println(acc.z);
-
-        display.setCursor(30, 130);
-        switch(direction) {
-	case DIRECTION_DISP_DOWN:
-	  display.println("FACE DOWN");
-	  break;
-	case DIRECTION_DISP_UP:
-	  display.println("FACE UP");
-	  break;
-	case DIRECTION_BOTTOM_EDGE:
-	  display.println("BOTTOM EDGE");
-	  break;
-	case DIRECTION_TOP_EDGE:
-	  display.println("TOP EDGE");
-	  break;
-	case DIRECTION_RIGHT_EDGE:
-	  display.println("RIGHT EDGE");
-	  break;
-	case DIRECTION_LEFT_EDGE:
-	  display.println("LEFT EDGE");
-	  break;
-	default:
-	  display.println("ERROR!!!");
-	  break;
-        }
-
-      }
-      display.display(true); //full refresh
-    }
-  }
-
-  show_menu(menu_index, false);
-}
-
 void
 update_weather_data(void) {
   if (connectWiFi()) { //Use Weather API for live data if WiFi is connected
@@ -341,11 +288,9 @@ update_weather_data(void) {
 
 static void
 show_watch_face(bool partial_refresh) {
-  display.init(0, false); //_initial_refresh to false to prevent full update on init
   display.setFullWindow();
   faces[current_face]();
   display.display(partial_refresh); //partial refresh
-  display.hibernate();
   gui_state = STATE_FACE;
 }
 
@@ -388,7 +333,6 @@ handle_button_press(void) {
   //Back Button
   else if (wakeupBit & BACK_BTN_MASK) {
     if (gui_state == STATE_MENU) { //exit to watch face if already in menu
-      RTC.clearAlarm(); //resets the alarm flag in the RTC
       RTC.read(currentTime);
       show_watch_face(false);
     } else if (gui_state == STATE_MENU_APP) {
@@ -409,21 +353,21 @@ handle_button_press(void) {
     } else if (gui_state == STATE_FACE) {
       switch (current_face) {
       case FACE_MINI:
-	current_face = FACE_VCARD;
-	show_watch_face(false);
-	return;
+        current_face = FACE_VCARD;
+        show_watch_face(false);
+        return;
       case FACE_MAIN:
-	RTC.read(currentTime);
-	current_face = FACE_MINI;
-	show_watch_face(false);
-	return;
+        RTC.read(currentTime);
+        current_face = FACE_MINI;
+        show_watch_face(false);
+        return;
       case FACE_VCARD:
-	RTC.read(currentTime);
-	current_face = FACE_MAIN;
-	show_watch_face(false);
-	return;
+        RTC.read(currentTime);
+        current_face = FACE_MAIN;
+        show_watch_face(false);
+        return;
       default:
-	break;
+        break;
       }
     }
   }
@@ -439,21 +383,21 @@ handle_button_press(void) {
     } else if (gui_state == STATE_FACE) {
       switch (current_face) {
       case FACE_MINI:
-	RTC.read(currentTime);
-	current_face = FACE_MAIN;
-	show_watch_face(false);
-	return;
+        RTC.read(currentTime);
+        current_face = FACE_MAIN;
+        show_watch_face(false);
+        return;
       case FACE_MAIN:
-	current_face = FACE_VCARD;
-	show_watch_face(false);
-	return;
+        current_face = FACE_VCARD;
+        show_watch_face(false);
+        return;
       case FACE_VCARD:
-	RTC.read(currentTime);
-	current_face = FACE_MINI;
-	show_watch_face(false);
-	return;
+        RTC.read(currentTime);
+        current_face = FACE_MINI;
+        show_watch_face(false);
+        return;
       default:
-	break;
+        break;
       }
     }
   }
@@ -471,7 +415,7 @@ handle_button_press(void) {
       timeout = true;
     } else {
       if (digitalRead(MENU_BTN_PIN) == 1) {
-	lastTimeout = millis();
+        lastTimeout = millis();
 	if (gui_state == STATE_MENU) { //if already in menu, then select menu item
 	  switch (menu_index) {
 	  case 0:
@@ -500,7 +444,6 @@ handle_button_press(void) {
       } else if (digitalRead(BACK_BTN_PIN) == 1) {
 	lastTimeout = millis();
 	if (gui_state == STATE_MENU) { //exit to watch face if already in menu
-	  RTC.clearAlarm(); //resets the alarm flag in the RTC
 	  RTC.read(currentTime);
 	  show_watch_face(false);
 	  break; //leave loop
@@ -528,9 +471,12 @@ handle_button_press(void) {
       }
     }
   }
-  RTC.clearAlarm(); //resets the alarm flag in the RTC
+
+  if (timeout)
+    Serial.println("Timeout!");
   RTC.read(currentTime);
-  show_watch_face(false);
+      show_watch_face(false);
+
 }
 
 static void
@@ -581,9 +527,14 @@ watchme_init(void) {
   Wire.begin(SDA, SCL); //init i2c
   RTC.init();
 
+  // Init the display here for all cases, if unused, it will do nothing
+  display.epd2.selectSPI(SPI, SPISettings(20000000, MSBFIRST, SPI_MODE0)); // Set SPI to 20Mhz (default is 4Mhz)
+  display.init(0, displayFullInit, 10,
+               true); // 10ms by spec, and fast pulldown reset
+  display.epd2.setBusyCallback(displayBusyCallback);
+
   switch (wakeup_reason) {
   case ESP_SLEEP_WAKEUP_EXT0: //RTC Alarm
-    RTC.clearAlarm(); //resets the alarm flag in the RTC
     if (gui_state == STATE_FACE) {
       RTC.read(currentTime);
       handle_custom_events();

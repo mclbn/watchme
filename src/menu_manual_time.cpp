@@ -21,7 +21,6 @@ menu_set_time(void) {
   pinMode(MENU_BTN_PIN, INPUT);
   pinMode(BACK_BTN_PIN, INPUT);
 
-  display.init(0, true); //_initial_refresh to false to prevent full update on init
   display.setFullWindow();
 
   while(1) {
@@ -144,8 +143,7 @@ menu_set_time(void) {
     display.display(true); //partial refresh
   }
 
-  display.hibernate();
-
+  
   tmElements_t tm;
   tm.Month = month;
   tm.Day = day;

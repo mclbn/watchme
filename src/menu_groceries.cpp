@@ -76,7 +76,6 @@ fetch_groceries(void) {
 
 void
 menu_groceries(void) {
-  display.init(0, false); //_initial_refresh to false to prevent full update on init
   display.setFullWindow();
   display.fillScreen(DARKMODE ? GxEPD_BLACK : GxEPD_WHITE);
   display.setFont(&FreeMonoBold9pt7b);
@@ -89,6 +88,6 @@ menu_groceries(void) {
     display.println("Failure!");
 
   display.display(false); //full refresh
-  display.hibernate();
+
   show_menu(menu_index, false);
 }

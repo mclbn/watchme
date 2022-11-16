@@ -9,10 +9,10 @@
 #define V10_ADC_PIN 33 //OG v1.0 Watchy
 #define V15_ADC_PIN 35 //v1.5 Watchy with PCF8563 RTC
 #define RTC_PIN GPIO_NUM_27
-#define CS 5
-#define DC 10
-#define RESET 9
-#define BUSY 19
+#define DISPLAY_CS 5
+#define DISPLAY_DC 10
+#define DISPLAY_RESET 9
+#define DISPLAY_BUSY 19
 #define VIB_MOTOR_PIN 13
 #define MENU_BTN_PIN 26
 #define BACK_BTN_PIN 25

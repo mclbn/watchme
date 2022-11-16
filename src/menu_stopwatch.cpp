@@ -34,7 +34,6 @@ void
 menu_stopwatch(void) {
   bool timeout = false;
 
-  display.init(0, true); //_initial_refresh to false to prevent full update on init
   display.setFullWindow();
   display.fillScreen(DARKMODE ? GxEPD_BLACK : GxEPD_WHITE);
   display.setFont(&DSEG7_Classic_Bold_53);
@@ -90,7 +89,19 @@ menu_stopwatch(void) {
     }
   }
 
+  if (timeout)
+    Serial.println("Timeout!");
+
   display.display(false); //full refresh
-  display.hibernate();
+
   show_menu(menu_index, false);
 }
+
+
+
+
+
+
+
+
+
