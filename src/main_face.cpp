@@ -99,52 +99,6 @@ draw_battery() {
   }
 }
 
-static void
-draw_weather() {
-  int8_t temperature = currentWeather.temperature;
-  int16_t weatherConditionCode = currentWeather.weatherConditionCode;
-
-  display.setFont(&DSEG7_Classic_Regular_39);
-  int16_t  x1, y1;
-  uint16_t w, h;
-  display.getTextBounds(String(temperature), 0, 0, &x1, &y1, &w, &h);
-  if (159 - w - x1 > 87) {
-    display.setCursor(159 - w - x1, 150);
-  } else {
-    display.setFont(&DSEG7_Classic_Bold_25);
-    display.getTextBounds(String(temperature), 0, 0, &x1, &y1, &w, &h);
-    display.setCursor(159 - w - x1, 136);
-  }
-  display.println(temperature);
-  display.drawBitmap(165, 110,
-		     strcmp(TEMP_UNIT, "metric") == 0 ? celsius : fahrenheit,
-		     26, 20, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-  const unsigned char * weatherIcon;
-
-  //https://openweathermap.org/weather-conditions
-  if (weatherConditionCode > 801) {//Cloudy
-    weatherIcon = cloudy;
-  } else if (weatherConditionCode == 801) {//Few Clouds
-    weatherIcon = cloudsun;
-  } else if (weatherConditionCode == 800) {//Clear
-    weatherIcon = sunny;
-  } else if (weatherConditionCode >=700) {//Atmosphere
-    weatherIcon = atmosphere;
-  } else if (weatherConditionCode >=600) {//Snow
-    weatherIcon = snow;
-  } else if (weatherConditionCode >=500) {//Rain
-    weatherIcon = rain;
-  } else if (weatherConditionCode >=300) {//Drizzle
-    weatherIcon = drizzle;
-  } else if (weatherConditionCode >=200) {//Thunderstorm
-    weatherIcon = thunderstorm;
-  } else
-    return;
-  display.drawBitmap(145, 158, weatherIcon,
-		     WEATHER_ICON_WIDTH, WEATHER_ICON_HEIGHT,
-		     DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
-}
-
 void
 draw_main_face(void) {
   display.fillScreen(DARKMODE ? GxEPD_BLACK : GxEPD_WHITE);
@@ -152,7 +106,6 @@ draw_main_face(void) {
   draw_time();
   draw_date();
   draw_steps();
-  draw_weather();
   draw_battery();
   display.drawBitmap(120, 77, WIFI_CONFIGURED ? wifi : wifioff,
 		     26, 18, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);

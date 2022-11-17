@@ -67,12 +67,4 @@
 // StopWatch
 #define MENU_STOPWATCH_TIMEOUT (1000 * 60 * 1)
 
-// Weather
-#define CITY_NAME "NANTES" //if your city name has a space, replace with '+'
-#define COUNTRY_CODE "FR"
-#define OPENWEATHERMAP_APIKEY "f058fe1cad2afe8e2ddc5d063a64cecb" //use your own API key :)
-#define OPENWEATHERMAP_URL "http://api.openweathermap.org/data/2.5/weather?q="
-#define TEMP_UNIT "metric" //use "imperial" for Fahrenheit"
-#define WEATHER_UPDATE_INTERVAL 30 //minutes
-
 #endif // CONSTANTS_H

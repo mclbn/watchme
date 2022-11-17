@@ -41,14 +41,8 @@ typedef enum {
 
 typedef void (*face_ptr)(void);
 
-typedef struct weatherData{
-	int8_t temperature;
-	int16_t weatherConditionCode;
-} weatherData;
-
 void watchme_init(void);
 float getBatteryVoltage(void);
-void update_weather_data(void);
 
 // stuff to isolate in dedicated cpp/header files
 void show_menu(byte menu_index, bool partialRefresh);
@@ -61,6 +55,5 @@ extern RTC_DATA_ATTR int menu_index;
 extern RTC_DATA_ATTR BMA423 sensor;
 extern RTC_DATA_ATTR bool WIFI_CONFIGURED;
 extern RTC_DATA_ATTR bool BLE_CONFIGURED;
-extern RTC_DATA_ATTR weatherData currentWeather;
 
 #endif // WATCHME_H

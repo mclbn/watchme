@@ -21,8 +21,6 @@ RTC_DATA_ATTR int menu_index;
 RTC_DATA_ATTR BMA423 sensor;
 RTC_DATA_ATTR bool WIFI_CONFIGURED;
 RTC_DATA_ATTR bool BLE_CONFIGURED;
-RTC_DATA_ATTR weatherData currentWeather;
-RTC_DATA_ATTR int weatherIntervalCounter = WEATHER_UPDATE_INTERVAL;
 RTC_DATA_ATTR bool displayFullInit = true;
 
 static void
@@ -256,36 +254,6 @@ show_fast_menu(byte menu_index) {
   gui_state = STATE_MENU;
 }
 
-void
-update_weather_data(void) {
-  if (connectWiFi()) { //Use Weather API for live data if WiFi is connected
-    HTTPClient http;
-    http.setConnectTimeout(3000); //3 second max timeout
-    String weatherQueryURL = String(OPENWEATHERMAP_URL)
-      + String(CITY_NAME) + String(",")
-      + String(COUNTRY_CODE) + String("&units=")
-      + String(TEMP_UNIT) + String("&appid=")
-      + String(OPENWEATHERMAP_APIKEY);
-    http.begin(weatherQueryURL.c_str());
-    int httpResponseCode = http.GET();
-    if (httpResponseCode == 200) {
-      String payload = http.getString();
-      JSONVar responseObject = JSON.parse(payload);
-      currentWeather.temperature = int(responseObject["main"]["temp"]);
-      currentWeather.weatherConditionCode = int(responseObject["weather"][0]["id"]);
-    } else {
-      //http error
-    }
-    http.end();
-    //turn off radios
-    WiFi.mode(WIFI_OFF);
-    // Are we sure about that ? Isn't btStop fow BT ?
-    btStop();
-  } else {
-    //No WiFi, no update!
-  }
-}
-
 static void
 show_watch_face(bool partial_refresh) {
   display.setFullWindow();
@@ -507,16 +475,6 @@ handle_custom_events(void) {
   if (currentTime.Minute == 0) { // quick vibrate every hour
     vibrate_motor(100, 1);
   }
-
-  if (current_face == FACE_MAIN) {
-    // Only update weather if current face requires it
-    if (weatherIntervalCounter >= WEATHER_UPDATE_INTERVAL) {
-      //only update if WEATHER_UPDATE_INTERVAL has elapsed (i.e. 30 minutes)
-      update_weather_data();
-      weatherIntervalCounter = 0;
-    }
-  }
-  weatherIntervalCounter++;
 }
 
 void
