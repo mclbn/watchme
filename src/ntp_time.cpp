@@ -24,8 +24,8 @@ get_ntp_time(void) {
     time_client.begin();
     if (!time_client.forceUpdate())
         return 0;
-    ntp_time = time_client.getEpochTime();
-    // ntp_time = CE.toLocal(time_client.getEpochTime());
+    // ntp_time = time_client.getEpochTime();
+    ntp_time = CE.toLocal(time_client.getEpochTime());
 
     time_client.end();
 
