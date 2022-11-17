@@ -60,7 +60,7 @@ draw_date() {
   }
   display.println(currentTime.Day);
   display.setCursor(5, 150);
-  display.println(currentTime.Year + YEAR_OFFSET);// offset from 1970, since year is stored in uint8_t
+  display.println(tmYearToCalendar(currentTime.Year));// offset from 1970, since year is stored in uint8_t
 }
 
 static void
