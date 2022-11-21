@@ -1,11 +1,12 @@
+#include <esp_sleep.h>
 #include "watchme.h"
 
 WatchyRTC RTC;
 
 GxEPD2_BW<GxEPD2_154_D67, GxEPD2_154_D67::HEIGHT> display(GxEPD2_154_D67(DISPLAY_CS,
-									 DISPLAY_DC,
-									 DISPLAY_RESET,
-									 DISPLAY_BUSY));
+                                                                         DISPLAY_DC,
+                                                                         DISPLAY_RESET,
+                                                                         DISPLAY_BUSY));
 
 tmElements_t currentTime;
 
@@ -28,7 +29,8 @@ reset_watch(void) {
   ESP.restart();
 }
 
-void displayBusyCallback(const void *) {
+static void
+displayBusyCallback(const void *) {
   gpio_wakeup_enable((gpio_num_t)DISPLAY_BUSY, GPIO_INTR_LOW_LEVEL);
   esp_sleep_enable_gpio_wakeup();
   esp_light_sleep_start();
@@ -201,7 +203,7 @@ show_menu(byte menu_index, bool partialRefresh) {
     if (i == menu_index) {
       display.getTextBounds(menuItems[i], 0, yPos, &x1, &y1, &w, &h);
       display.fillRect(x1 - 1, y1 - 10, 200, h + 15,
-		       DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
+                       DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
       display.setTextColor(DARKMODE ? GxEPD_BLACK : GxEPD_WHITE);
       display.println(menuItems[i]);
     } else {
@@ -240,7 +242,7 @@ show_fast_menu(byte menu_index) {
     if (i == menu_index) {
       display.getTextBounds(menuItems[i], 0, yPos, &x1, &y1, &w, &h);
       display.fillRect(x1 - 1, y1 - 10, 200, h + 15,
-		       DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
+                       DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
       display.setTextColor(DARKMODE ? GxEPD_BLACK : GxEPD_WHITE);
       display.println(menuItems[i]);
     } else {
@@ -275,25 +277,25 @@ handle_button_press(void) {
     } else if (gui_state == STATE_MENU) { //if already in menu, then select menu item
       switch(menu_index) {
       case 0:
-	menu_stopwatch();
-	break;
+        menu_stopwatch();
+        break;
       case 1:
-	menu_battery_status();
-	break;
+        menu_battery_status();
+        break;
       case 2:
-	menu_ntp_time();
-	break;
+        menu_ntp_time();
+        break;
       case 3:
-	menu_set_time();
-	break;
+        menu_set_time();
+        break;
       case 4:
-	menu_groceries();
-	break;
+        menu_groceries();
+        break;
       case 5:
-	reset_watch();
-	break;
+        reset_watch();
+        break;
       default:
-	break;
+        break;
       }
     }
   }
@@ -384,58 +386,58 @@ handle_button_press(void) {
     } else {
       if (digitalRead(MENU_BTN_PIN) == 1) {
         lastTimeout = millis();
-	if (gui_state == STATE_MENU) { //if already in menu, then select menu item
-	  switch (menu_index) {
-	  case 0:
-	    menu_stopwatch();
-	    break;
-	  case 1:
-	    menu_battery_status();
-	    break;
-	  case 2:
-	    menu_ntp_time();
-	    break;
-	  case 3:
-	    menu_set_time();
-	    break;
-	  case 4:
-	    menu_groceries();
-	    break;
-	  case 5:
-	    reset_watch();
-	    break;
-	  default:
-	    break;
-	  }
-	  lastTimeout = millis();
-	}
+        if (gui_state == STATE_MENU) { //if already in menu, then select menu item
+          switch (menu_index) {
+          case 0:
+            menu_stopwatch();
+            break;
+          case 1:
+            menu_battery_status();
+            break;
+          case 2:
+            menu_ntp_time();
+            break;
+          case 3:
+            menu_set_time();
+            break;
+          case 4:
+            menu_groceries();
+            break;
+          case 5:
+            reset_watch();
+            break;
+          default:
+            break;
+          }
+          lastTimeout = millis();
+        }
       } else if (digitalRead(BACK_BTN_PIN) == 1) {
-	lastTimeout = millis();
-	if (gui_state == STATE_MENU) { //exit to watch face if already in menu
-	  RTC.read(currentTime);
-	  show_watch_face(false);
-	  break; //leave loop
-	} else if (gui_state == STATE_MENU_APP) {
-	  show_menu(menu_index, false);//exit to menu if already in app
-	}
+        lastTimeout = millis();
+        if (gui_state == STATE_MENU) { //exit to watch face if already in menu
+          RTC.read(currentTime);
+          show_watch_face(false);
+          break; //leave loop
+        } else if (gui_state == STATE_MENU_APP) {
+          show_menu(menu_index, false);//exit to menu if already in app
+        }
       } else if (digitalRead(UP_BTN_PIN) == 1) {
-	lastTimeout = millis();
-	if (gui_state == STATE_MENU) { //increment menu index
-	  menu_index--;
-	  if (menu_index < 0) {
-	    menu_index = MENU_LENGTH - 1;
-	  }
-	  show_fast_menu(menu_index);
-	}
+        lastTimeout = millis();
+        if (gui_state == STATE_MENU) { //increment menu index
+          menu_index--;
+          if (menu_index < 0) {
+            menu_index = MENU_LENGTH - 1;
+          }
+          show_fast_menu(menu_index);
+        }
       } else if (digitalRead(DOWN_BTN_PIN) == 1) {
-	lastTimeout = millis();
-	if (gui_state == STATE_MENU) { //decrement menu index
-	  menu_index++;
-	  if (menu_index > MENU_LENGTH - 1) {
-	    menu_index = 0;
-	  }
-	  show_fast_menu(menu_index);
-	}
+        lastTimeout = millis();
+        if (gui_state == STATE_MENU) { //decrement menu index
+          menu_index++;
+          if (menu_index > MENU_LENGTH - 1) {
+            menu_index = 0;
+          }
+          show_fast_menu(menu_index);
+        }
       }
     }
   }
@@ -443,8 +445,7 @@ handle_button_press(void) {
   if (timeout)
     Serial.println("Timeout!");
   RTC.read(currentTime);
-      show_watch_face(false);
-
+  show_watch_face(false);
 }
 
 static void
@@ -469,7 +470,7 @@ handle_custom_events(void) {
       time_update_success = true;
     }
     // must update after daytime savings change (last sunday of march and october)
-      // any sunday past 24 (excluded) is the last sunday for march or october
+    // any sunday past 24 (excluded) is the last sunday for march or october
   }
 
   if (currentTime.Minute == 0) { // quick vibrate every hour

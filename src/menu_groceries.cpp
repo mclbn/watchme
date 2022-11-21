@@ -4,7 +4,7 @@ static char * main_groceries[MAX_GROCERIES_ITEM + 1];;
 
 static char * bai_groceries[MAX_GROCERIES_ITEM + 1];
 
-void
+static void
 parse_csv_response(const char * response, char ** table) {
   char * buffer = strdup(response);
 
@@ -17,18 +17,18 @@ parse_csv_response(const char * response, char ** table) {
   for (tok = strtok(buffer, "\n");
        tok && *tok;
        tok = strtok(NULL, "\n")
-       ) {
+    ) {
     Serial.printf("orig. line: %s\n", tok);
     if (count != 0) { // skipping header
       if (table[count] != NULL)
-	free(table[count]);
+        free(table[count]);
 
       char * line = strdup(tok);
 
       Serial.printf("line: %s\n", line);
 
       if (line == NULL)
-	return;
+        return;
 
       const char * value;
       value = strtok(line, ",");
@@ -42,8 +42,7 @@ parse_csv_response(const char * response, char ** table) {
   free(buffer);
 }
 
-
-bool
+static bool
 fetch_groceries(void) {
   bool status = false;
 
@@ -72,7 +71,6 @@ fetch_groceries(void) {
 
   return status;
 }
-
 
 void
 menu_groceries(void) {

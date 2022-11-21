@@ -25,7 +25,7 @@ check_wireless_interfaces(void) {
 
 /*
  * Written by Ahmad Shamshiri
-  * with lots of research, this sources was used:
+ * with lots of research, this sources was used:
  * https://support.randomsolutions.nl/827069-Best-dBm-Values-for-Wifi
  * This is approximate percentage calculation of RSSI
  * WiFi Signal Strength Calculation
@@ -38,27 +38,27 @@ dBmtoPercentage(int dBm) {
   const int RSSI_MIN =-100;// define minimum strength of signal in dBm
 
   int quality;
-    if(dBm <= RSSI_MIN)
+  if(dBm <= RSSI_MIN)
     {
-        quality = 0;
+      quality = 0;
     }
-    else if(dBm >= RSSI_MAX)
+  else if(dBm >= RSSI_MAX)
     {
-        quality = 100;
+      quality = 100;
     }
-    else
+  else
     {
-        quality = 2 * (dBm + 100);
-   }
+      quality = 2 * (dBm + 100);
+    }
 
-     return quality;
+  return quality;
 }
 
 static bool
 is_ap_known(const char * ap_str) {
   for (uint8_t i = 0; know_wifi_hotspots[i].ssid; i++) {
-      if (strcmp(ap_str, know_wifi_hotspots[i].ssid) == 0)
-        return true;
+    if (strcmp(ap_str, know_wifi_hotspots[i].ssid) == 0)
+      return true;
   }
   return false;
 }
@@ -78,8 +78,8 @@ check_for_known_ap(void) {
     if (is_ap_known(WiFi.SSID(i).c_str()))
       Serial.println("[known]");
     else
-      Serial.println("[unknown]");  
-}
+      Serial.println("[unknown]");
+  }
 
   WiFi.scanDelete();
   Serial.println("WiFi scan done");

@@ -94,8 +94,8 @@ draw_battery() {
        batterySegments < batteryLevel;
        batterySegments++) {
     display.fillRect(159 + (batterySegments * BATTERY_SEGMENT_SPACING), 78,
-		     BATTERY_SEGMENT_WIDTH, BATTERY_SEGMENT_HEIGHT,
-		     DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
+                     BATTERY_SEGMENT_WIDTH, BATTERY_SEGMENT_HEIGHT,
+                     DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
   }
 }
 
@@ -108,9 +108,9 @@ draw_main_face(void) {
   draw_steps();
   draw_battery();
   display.drawBitmap(120, 77, WIFI_CONFIGURED ? wifi : wifioff,
-		     26, 18, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
+                     26, 18, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
   if (BLE_CONFIGURED) {
     display.drawBitmap(100, 75, bluetooth, 13, 21,
-		       DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
+                       DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
   }
 }

@@ -96,12 +96,3 @@ menu_stopwatch(void) {
 
   show_menu(menu_index, false);
 }
-
-
-
-
-
-
-
-
-

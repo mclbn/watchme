@@ -43,22 +43,22 @@ menu_set_time(void) {
       blink = 1;
       switch (setIndex) {
       case SET_HOUR:
-	hour == 23 ? (hour = 0) : hour++;
-	break;
+        hour == 23 ? (hour = 0) : hour++;
+        break;
       case SET_MINUTE:
-	minute == 59 ? (minute = 0) : minute++;
-	break;
+        minute == 59 ? (minute = 0) : minute++;
+        break;
       case SET_YEAR:
-	year == 99 ? (year = 0) : year++;
-	break;
+        year == 99 ? (year = 0) : year++;
+        break;
       case SET_MONTH:
-	month == 12 ? (month = 1) : month++;
-	break;
+        month == 12 ? (month = 1) : month++;
+        break;
       case SET_DAY:
-	day == 31 ? (day = 1) : day++;
-	break;
+        day == 31 ? (day = 1) : day++;
+        break;
       default:
-	break;
+        break;
       }
     }
 
@@ -66,22 +66,22 @@ menu_set_time(void) {
       blink = 1;
       switch (setIndex) {
       case SET_HOUR:
-	hour == 0 ? (hour = 23) : hour--;
-	break;
+        hour == 0 ? (hour = 23) : hour--;
+        break;
       case SET_MINUTE:
-	minute == 0 ? (minute = 59) : minute--;
-	break;
+        minute == 0 ? (minute = 59) : minute--;
+        break;
       case SET_YEAR:
-	year == 0 ? (year = 99) : year--;
-	break;
+        year == 0 ? (year = 99) : year--;
+        break;
       case SET_MONTH:
-	month == 1 ? (month = 12) : month--;
-	break;
+        month == 1 ? (month = 12) : month--;
+        break;
       case SET_DAY:
-	day == 1 ? (day = 31) : day--;
-	break;
+        day == 1 ? (day = 31) : day--;
+        break;
       default:
-	break;
+        break;
       }
     }
 
@@ -143,7 +143,6 @@ menu_set_time(void) {
     display.display(true); //partial refresh
   }
 
-  
   tmElements_t tm;
   tm.Month = month;
   tm.Day = day;

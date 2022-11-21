@@ -4,8 +4,8 @@
 #include "watchme.h"
 
 typedef struct s_wifi_hotspot {
-	const char * ssid;
-	const char * pass;
+  const char * ssid;
+  const char * pass;
 } t_wifi_hotspot;
 
 bool connectWiFi(void);

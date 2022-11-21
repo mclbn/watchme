@@ -1,8 +1,6 @@
 #ifndef WATCHY_RTC_H
 #define WATCHY_RTC_H
 
-#include "config.h"
-#include "time.h"
 #include <DS3232RTC.h>
 #include <Rtc_Pcf8563.h>
 

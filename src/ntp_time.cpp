@@ -2,10 +2,10 @@
 
 void
 update_rtc_from_ntp(time_t ntp_time) {
-    tmElements_t tm;
+  tmElements_t tm;
 
-    breakTime((time_t)ntp_time, tm);
-    RTC.set(tm);
+  breakTime((time_t)ntp_time, tm);
+  RTC.set(tm);
 }
 
 time_t
@@ -23,7 +23,7 @@ get_ntp_time(void) {
 
     time_client.begin();
     if (!time_client.forceUpdate())
-        return 0;
+      return 0;
     // ntp_time = time_client.getEpochTime();
     ntp_time = CE.toLocal(time_client.getEpochTime());
 
@@ -36,13 +36,3 @@ get_ntp_time(void) {
   }
   return ntp_time;
 }
-
-
-
-
-
-
-
-
-
-

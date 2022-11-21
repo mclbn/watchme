@@ -26,17 +26,17 @@
 #include "ntp_time.h"
 
 typedef enum {
-	FACE_MINI,
-	FACE_MAIN,
-	FACE_VCARD,
-	MAX_FACES
+  FACE_MINI,
+  FACE_MAIN,
+  FACE_VCARD,
+  MAX_FACES
 } face_id;
 
 typedef enum {
-	STATE_FACE,
-	STATE_MENU,
-	STATE_MENU_APP,
-	MAX_STATES
+  STATE_FACE,
+  STATE_MENU,
+  STATE_MENU_APP,
+  MAX_STATES
 } state_id;
 
 typedef void (*face_ptr)(void);
